@@ -1,82 +1,71 @@
-import { useState } from "react";
+// import { useState } from "react";
+// import { books } from "./books";
 import "./App.css";
 import BooksList from "./components/BooksList";
 import Button from "./components/Button";
-import { books } from "./books";
 import Modal from "./components/Modal";
 
-interface IBook {
-  id: number;
-  title: string;
-  author: string;
-  genre: string;
-  image: string;
-  description: string;
-}
+import { useSelector, useDispatch } from "react-redux";
+import {
+  filterBooks,
+  disableFilter,
+  openDescriptionBook,
+  closeDescriptionBook,
+} from "./store/booksSlice";
+
 
 export default function App() {
-  const [filteredBooks, setFilteredBooks] = useState(books);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedBook, setSelectedBook] = useState<IBook>();
+  // Вытаскиваем данные из хранилища
+  // Здесь state — это все состояние
+  const { filteredBooks, selectedBook, showModal } = useSelector((state) => state.books);
 
-  function handleFilter(genre: string) {
-    const filtered = books.filter((book) => book.genre === genre);
-    setFilteredBooks(filtered);
-  }
+  // Возвращает метод store.dispatch() текущего хранилища
+  const dispatch = useDispatch();
 
-  function handleDisableFilter() {
-    setFilteredBooks(books);
-  }
+  // const [filteredBooks, setFilteredBooks] = useState(books);
+  // const [showModal, setShowModal] = useState<boolean>(false);
+  // const [selectedBook, setSelectedBook] = useState<IBook>();
 
-  function handleOpenDescriptionBook(book: IBook) {
-    setSelectedBook(book);
-    setShowModal(true);
-  }
+  // function handleFilter(genre: string) {
+  //   const filtered = books.filter((book) => book.genre === genre);
+  //   setFilteredBooks(filtered);
+  // }
 
-  function handleCloseModal() {
-    setShowModal(false);
-  }
+  // function handleDisableFilter() {
+  //   setFilteredBooks(books);
+  // }
+
+  // function handleOpenDescriptionBook(book: IBook) {
+  //   setSelectedBook(book);
+  //   setShowModal(true);
+  // }
+
+  // function handleCloseModal() {
+  //   setShowModal(false);
+  // }
 
   return (
     <>
       <h1>Books List 📚</h1>
 
-      <Button
-        onClick={() => {
-          handleFilter("фэнтези");
-        }}
-      >
-        Фэнтези
-      </Button>
-      <Button
-        onClick={() => {
-          handleFilter("фантастика");
-        }}
-      >
+      <Button onClick={() => dispatch(filterBooks("фэнтези"))}>
+        Фэнтези</Button>
+      <Button onClick={() => dispatch(filterBooks("фантастика"))}>
         Фантастика
       </Button>
-      <Button
-        onClick={() => {
-          handleFilter("видеоигры");
-        }}
-      >
+      <Button onClick={() => dispatch(filterBooks("видеоигры"))}>
         Видеоигры
       </Button>
-      <Button
-        onClick={() => {
-          handleFilter("биография");
-        }}
-      >
+      <Button onClick={() => dispatch(filterBooks("биография"))}>
         Биография
       </Button>
-      <Button onClick={handleDisableFilter}>Все жанры</Button>
+      <Button onClick={() => dispatch(disableFilter())}>
+        Все жанры
+      </Button>
 
-      <BooksList books={filteredBooks} onClick={handleOpenDescriptionBook} />
+      <BooksList books={filteredBooks} onClick={(book) => dispatch(openDescriptionBook(book))} />
       {showModal && selectedBook && (
-        <Modal
-          onClick={handleCloseModal}
-          book={selectedBook}
-        ></Modal>
+        <Modal onClick={() => dispatch(closeDescriptionBook())} book={selectedBook}></Modal>
       )}
     </>
   );
